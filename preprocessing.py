@@ -1,4 +1,7 @@
+import numpy as np
 import pandas as pd
+import torch
+from torch.tensor import Tensor
 
 # UserID::MovieID::Rating::Timestamp
 
@@ -25,5 +28,52 @@ def preprocess_ratings():
     df.to_csv("user-item-matrix-preprocessed.csv")
 
 
+def get_positive_indicies(tensor: Tensor):
+    positive_indicies = torch.nonzero(tensor)
+    positive_indicies = positive_indicies[1:]  # remove the userId index
+
+    return positive_indicies
+
+
+def split_ratings():
+    df = pd.read_csv("Data/user-item-matrix-preprocessed.csv")
+
+    list_of_tensors = [torch.tensor(np.array(row))
+                       for row in df.itertuples(index=False)]
+
+    positive_indicies = [torch.flatten(
+        get_positive_indicies(tensor)) for tensor in list_of_tensors]
+
+    indices_shuffled = [torch.randperm(len(item))
+                        for item in positive_indicies]
+
+    indicies_train_test = [(item[:int(len(item) * 0.8)], item[int(len(item) * 0.8):])
+                           for item in indices_shuffled]
+
+    positive_train = []
+    positive_test = []
+    for i in range(len(indicies_train_test)):
+        indicies_train, indicies_test = indicies_train_test[i]
+
+        train = positive_indicies[i][indicies_train]
+        test = positive_indicies[i][indicies_test]
+
+        positive_train.append(train)
+        positive_test.append(test)
+
+    train_matrix = torch.zeros(len(list_of_tensors), len(list_of_tensors[0]))
+    test_matrix = torch.zeros(len(list_of_tensors), len(list_of_tensors[0]))
+
+    for user in range(len(list_of_tensors)):
+        train = torch.tensor(positive_train[user])
+        test = torch.tensor(positive_test[user])
+
+        train_matrix[user].index_fill_(0, train, 1)
+        test_matrix[user].index_fill_(0, test, 1)
+
+    torch.save(train_matrix, 'Data/tensor_train.pt')
+    torch.save(test_matrix, 'Data/tensor_test.pt')
+
+
 if __name__ == "__main__":
-    preprocess_ratings()
+    split_ratings()
