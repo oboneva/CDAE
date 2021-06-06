@@ -14,12 +14,8 @@ def main():
     print("Using {} device".format(device))
 
     # 1. Prepare the Data.
-    dataset = MovieLens10MDataset("./Data/user-item-matrix-preprocessed.csv")
-    dataset_len = len(dataset)
-    train_len = int(0.7 * dataset_len)
-    valid_len = dataset_len - train_len
-
-    train, test = random_split(dataset, lengths=[train_len, valid_len])
+    train = MovieLens10MDataset("./Data/tensor_train.pt")
+    test = MovieLens10MDataset("./Data/tensor_test.pt")
 
     train_dl = DataLoader(
         train, batch_size=configs.data.train_batch_size, shuffle=True)
@@ -27,9 +23,9 @@ def main():
         test, batch_size=configs.data.test_batch_size, shuffle=False)
 
     # 2. Define the Model.
-    size = train.dataset.size()
+    size = train.size()
     model = CDAE(model_conf=configs.model,
-                 users_count=size[0], items_count=size[1] - 1, device=device)
+                 users_count=size[0], items_count=size[1], device=device)
 
     # 3. Train the Model.
     loss = MSELoss()

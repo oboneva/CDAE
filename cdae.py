@@ -26,8 +26,8 @@ class CDAE(nn.Module):
 
         self.to(self.device)
 
-    def forward(self, user_ratings: Tensor, indices):
-        corrupted_ratings = func.dropout(user_ratings[:, 1:])
+    def forward(self, ratings: Tensor, indices):
+        corrupted_ratings = func.dropout(ratings)
 
         hidden = self.encoder(corrupted_ratings) + self.user_embedding(indices)
         hidden = self.hidden_mapping_function(hidden)

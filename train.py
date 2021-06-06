@@ -10,11 +10,10 @@ class Trainer:
         optimizer = config.optimizer(
             model.parameters(), lr=config.learning_rate)
         for epoch in range(config.epochs):
-            for step, (row, positive_indicies, negative_indicies, index) in enumerate(train_dataloader):
-
+            for step, (ratings, indices) in enumerate(train_dataloader):
                 optimizer.zero_grad()
                 output = model(ratings, indices)
-                loss = loss_func(output, ratings[:, 1:])
+                loss = loss_func(output, ratings)
                 loss.backward()
                 optimizer.step()
 
