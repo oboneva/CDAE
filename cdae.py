@@ -1,3 +1,4 @@
+import torch
 from torch.tensor import Tensor
 from configs import model
 from torch import nn
@@ -27,7 +28,15 @@ class CDAE(nn.Module):
         self.to(self.device)
 
     def forward(self, ratings: Tensor, indices):
-        corrupted_ratings = func.dropout(ratings)
+        user_degree = torch.norm(ratings, 2, 1).view(-1, 1)
+        item_degree = torch.norm(ratings, 2, 0).view(1, -1)
+        normalize = torch.sqrt(user_degree @ item_degree)
+        zero_mask = normalize == 0
+        normalize = torch.masked_fill(normalize, zero_mask.bool(), 1e-10)
+
+        normalized_rating_matrix = ratings / normalize
+
+        corrupted_ratings = func.dropout(normalized_rating_matrix)
 
         hidden = self.encoder(corrupted_ratings) + self.user_embedding(indices)
         hidden = self.hidden_mapping_function(hidden)

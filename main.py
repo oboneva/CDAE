@@ -1,12 +1,10 @@
 from evaluate import Evaluator
 from train import Trainer
 from cdae import CDAE
-from torch.utils.data.dataset import random_split
 from torch.utils.data.dataloader import DataLoader
 from dataset import MovieLens10MDataset
 import torch
-import configs
-from torch.nn import MSELoss
+from configs import data_config, model_config, trainer_config, evaluator_config
 
 
 def main():
@@ -18,25 +16,24 @@ def main():
     test = MovieLens10MDataset("./Data/tensor_test.pt")
 
     train_dl = DataLoader(
-        train, batch_size=configs.data.train_batch_size, shuffle=True)
+        train, batch_size=data_config.train_batch_size, shuffle=True)
     test_dl = DataLoader(
-        test, batch_size=configs.data.test_batch_size, shuffle=False)
+        test, batch_size=data_config.test_batch_size, shuffle=False)
 
     # 2. Define the Model.
     size = train.size()
-    model = CDAE(model_conf=configs.model,
+    model = CDAE(model_conf=model_config,
                  users_count=size[0], items_count=size[1], device=device)
 
     # 3. Train the Model.
-    loss = MSELoss()
-    Trainer.train(model=model, loss_func=loss, train_dataloader=train_dl,
-                  config=configs.trainer)
+    trainer = Trainer(train_dl, test_dl,
+                      trainer_config, evaluator_config)
+    trainer.train(model)
 
     # 4. Evaluate the Model.
-    for k in configs.evaluator.top_k_list:
-        result = Evaluator().map_at_k(model, test_dataloader=test_dl, k=k)
-
-        print(f"Avg Precision at {k} ", result)
+    result = Evaluator().eval(model=model, dl=test_dl,
+                              verbose=True, config=evaluator_config)
+    print(result)
 
     # 5. Make Predictions.
 

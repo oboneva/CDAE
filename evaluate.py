@@ -1,8 +1,7 @@
 import torch
-from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from torch.nn import Module
-from torch import Tensor
+from configs import evaluator_config
 
 
 class Evaluator:
@@ -28,7 +27,7 @@ class Evaluator:
         batch_len = len(batch_rec_list)
         batch_precisions = torch.zeros(batch_len, 1)
 
-        adopted = torch.sum(batch_target_list[:, 1:], 1)
+        adopted = torch.sum(batch_target_list, 1)
 
         for index in range(0, k):
             _, batch_top_k_indicies = torch.topk(
@@ -41,12 +40,13 @@ class Evaluator:
             batch_rel = torch.gather(batch_target_list, 1, target_top_k_index)
 
             batch_p_at_k = self._batch_precision_at_k(
-                batch_top_k_indicies, batch_target_list, k=index)
+                batch_top_k_indicies, batch_target_list, k=index + 1)
 
             batch_precisions += batch_p_at_k * batch_rel
 
         return batch_precisions / min(k, len(adopted))
 
+    @torch.no_grad()
     def map_at_k(self, model: Module, test_dataloader: DataLoader, k: int):
         avg_precision = 0
         users = 0
@@ -59,6 +59,18 @@ class Evaluator:
             users += len(ratings)
 
         return avg_precision / users
+
+    def eval(self, model: Module, dl: DataLoader, config: evaluator_config, verbose: bool):
+        results = []
+
+        for k in config.top_k_list:
+            result = self.map_at_k(model, test_dataloader=dl, k=k)
+            results.append(result)
+
+            if verbose:
+                print(f"Mean Avg Precision at {k} ", result)
+
+        return results
 
 
 def main():
