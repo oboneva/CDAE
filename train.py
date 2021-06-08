@@ -12,6 +12,10 @@ class Trainer:
 
         self.train_config = train_config
 
+        self.min_val_loss = 1
+        self.patience = 15
+        self.no_improvement_epochs = 0
+
     @torch.no_grad()
     def eval_loss(self, model: Module, dl: DataLoader):
         loss_func = trainer_config.loss()
@@ -53,9 +57,23 @@ class Trainer:
             val_loss = self.eval_loss(model, self.val_dl).item()
             writer.add_scalar("MLoss/validation", val_loss, epoch)
 
-            print("MLoss/train", train_loss, epoch)
-            print("MLoss/validation", val_loss, epoch)
+            print("MLoss/train", train_loss)
+            print("MLoss/validation", val_loss)
 
             writer.flush()
+
+            if val_loss < self.min_val_loss:
+                self.min_val_loss = val_loss
+                self.no_improvement_epochs = 0
+
+                print("New minimal validation loss", val_loss)
+
+                torch.save(model.state_dict(), "state_dict_model.pt")
+            elif self.no_improvement_epochs == self.patience:
+                print("Early stoping on epoch {}".format(epoch))
+
+                break
+            else:
+                self.no_improvement_epochs += 1
 
         writer.close()
