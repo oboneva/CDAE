@@ -75,5 +75,43 @@ def split_ratings():
     torch.save(test_matrix, 'Data/tensor_test.pt')
 
 
+def split_train_to_train_validate():
+    train = torch.load("Data/tensor_train.pt")
+    matrix_size = train.size()
+
+    positive_indicies = [torch.flatten(
+        get_positive_indicies(tensor)) for tensor in train]
+
+    indices_shuffled = [torch.randperm(len(item))
+                        for item in positive_indicies]
+
+    indicies_train_validate = [(item[:int(len(item) * 0.75)], item[int(len(item) * 0.75):])
+                               for item in indices_shuffled]
+
+    positive_train = []
+    positive_validate = []
+    for i in range(len(indicies_train_validate)):
+        indicies_train, indicies_val = indicies_train_validate[i]
+
+        train = positive_indicies[i][indicies_train]
+        validate = positive_indicies[i][indicies_val]
+
+        positive_train.append(train)
+        positive_validate.append(validate)
+
+    train_matrix = torch.zeros(matrix_size)
+    validate_matrix = torch.zeros(matrix_size)
+
+    for user in range(len(indicies_train_validate)):
+        train = torch.tensor(positive_train[user])
+        test = torch.tensor(positive_validate[user])
+
+        train_matrix[user].index_fill_(0, train, 1)
+        validate_matrix[user].index_fill_(0, test, 1)
+
+    torch.save(train_matrix, 'Data/tensor_train_60.pt')
+    torch.save(validate_matrix, 'Data/tensor_validate.pt')
+
+
 if __name__ == "__main__":
-    split_ratings()
+    split_train_to_train_validate()
