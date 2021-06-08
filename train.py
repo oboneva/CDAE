@@ -12,7 +12,7 @@ class Trainer:
         self.train_config = train_config
 
         self.min_val_loss = 1
-        self.patience = 15
+        self.patience = train_config.patience
         self.no_improvement_epochs = 0
 
         self.writer = writer

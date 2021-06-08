@@ -20,6 +20,7 @@ class trainer_config:
     epochs = 500
     optimizer = Adam
     loss = BCELoss
+    patience = 15
 
 
 class evaluator_config:
