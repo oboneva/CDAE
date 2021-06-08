@@ -21,7 +21,7 @@ def main():
     test_dl = DataLoader(
         test, batch_size=data_config.test_batch_size, shuffle=False)
     validation_dl = DataLoader(
-        test, batch_size=data_config.val_batch_size, shuffle=False)
+        validate, batch_size=data_config.val_batch_size, shuffle=False)
 
     # 2. Define the Model.
     size = train.size()
