@@ -2,11 +2,10 @@ import torch
 from torch.utils.data import DataLoader
 from torch.nn import Module
 from configs import trainer_config
-from torch.utils.tensorboard import SummaryWriter
 
 
 class Trainer:
-    def __init__(self, train_dataloader: DataLoader, validation_dataloader: DataLoader, train_config: trainer_config):
+    def __init__(self, train_dataloader: DataLoader, validation_dataloader: DataLoader, train_config: trainer_config, writer):
         self.train_dl = train_dataloader
         self.val_dl = validation_dataloader
 
@@ -15,6 +14,8 @@ class Trainer:
         self.min_val_loss = 1
         self.patience = 15
         self.no_improvement_epochs = 0
+
+        self.writer = writer
 
     @torch.no_grad()
     def eval_loss(self, model: Module, dl: DataLoader):
@@ -35,8 +36,6 @@ class Trainer:
         loss_func = self.train_config.loss()
         optimizer = self.train_config.optimizer(model.parameters())
 
-        writer = SummaryWriter()
-
         for epoch in range(self.train_config.epochs):
             print("--------------- Epoch {} --------------- ".format(epoch))
 
@@ -52,15 +51,15 @@ class Trainer:
                 train_loss += loss.item()
 
             train_loss /= step
-            writer.add_scalar("MLoss/train", train_loss, epoch)
+            self.writer.add_scalar("MLoss/train", train_loss, epoch)
 
             val_loss = self.eval_loss(model, self.val_dl).item()
-            writer.add_scalar("MLoss/validation", val_loss, epoch)
+            self.writer.add_scalar("MLoss/validation", val_loss, epoch)
 
             print("MLoss/train", train_loss)
             print("MLoss/validation", val_loss)
 
-            writer.flush()
+            self.writer.flush()
 
             if val_loss < self.min_val_loss:
                 self.min_val_loss = val_loss
@@ -75,5 +74,3 @@ class Trainer:
                 break
             else:
                 self.no_improvement_epochs += 1
-
-        writer.close()

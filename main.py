@@ -5,6 +5,7 @@ from torch.utils.data.dataloader import DataLoader
 from dataset import MovieLens10MDataset
 import torch
 from configs import data_config, model_config, trainer_config, evaluator_config
+from torch.utils.tensorboard import SummaryWriter
 
 
 def main():
@@ -29,14 +30,20 @@ def main():
         model_config, users_count=size[0], items_count=size[1], device=device)
 
     # 3. Train the Model.
-    trainer = Trainer(train_dl, validation_dl, trainer_config)
+    writer = SummaryWriter()
+
+    trainer = Trainer(train_dl, validation_dl, trainer_config, writer)
     trainer.train(model)
 
     # 4. Evaluate the Model.
-    result = Evaluator().eval(model=model, dl=test_dl,
-                              verbose=True, config=evaluator_config)
+    best_model = CDAE()
+    best_model.load_state_dict(torch.load("state_dict_model.pt"))
+
+    result = Evaluator().eval(model=best_model, dl=test_dl,
+                              verbose=True, config=evaluator_config, writer=writer)
     print(result)
 
+    writer.close()
     # 5. Make Predictions.
 
 

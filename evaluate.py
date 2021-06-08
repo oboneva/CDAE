@@ -60,12 +60,15 @@ class Evaluator:
 
         return avg_precision / users
 
-    def eval(self, model: Module, dl: DataLoader, config: evaluator_config, verbose: bool):
+    def eval(self, model: Module, dl: DataLoader, config: evaluator_config, verbose: bool, writer):
         results = []
 
         for k in config.top_k_list:
             result = self.map_at_k(model, test_dataloader=dl, k=k)
             results.append(result)
+
+            writer.add_scalar("Test/MAP@{}".format(k), result)
+            writer.flush()
 
             if verbose:
                 print(f"Mean Avg Precision at {k} ", result)
