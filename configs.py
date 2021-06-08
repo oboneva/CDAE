@@ -13,6 +13,7 @@ class model_config:
 class data_config:
     train_batch_size = 512
     test_batch_size = 1024
+    val_batch_size = 1024
 
 
 class trainer_config:
