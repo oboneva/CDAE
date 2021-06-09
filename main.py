@@ -36,7 +36,8 @@ def main():
     trainer.train(model)
 
     # 4. Evaluate the Model.
-    best_model = CDAE()
+    best_model = CDAE(
+        model_config, users_count=size[0], items_count=size[1], device=device)
     best_model.load_state_dict(torch.load("state_dict_model.pt"))
 
     result = Evaluator().eval(model=best_model, dl=test_dl,
