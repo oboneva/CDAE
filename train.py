@@ -18,11 +18,14 @@ class Trainer:
         self.writer = writer
 
     @torch.no_grad()
-    def eval_loss(self, model: Module, dl: DataLoader):
+    def eval_loss(self, model: Module, dl: DataLoader, device):
         loss_func = trainer_config.loss()
         loss = 0
 
         for step, (ratings, indices) in enumerate(dl):
+            ratings = ratings.to(device)
+            indices = indices.to(device)
+
             output = model(ratings, indices)
             loss = loss_func(output, ratings)
 
@@ -32,7 +35,7 @@ class Trainer:
 
         return loss
 
-    def train(self, model: Module):
+    def train(self, model: Module, device):
         loss_func = self.train_config.loss()
         optimizer = self.train_config.optimizer(model.parameters())
 
@@ -43,6 +46,10 @@ class Trainer:
 
             for step, (ratings, indices) in enumerate(self.train_dl):
                 optimizer.zero_grad()
+
+                ratings = ratings.to(device)
+                indices = indices.to(device)
+
                 output = model(ratings, indices)
                 loss = loss_func(output, ratings)
                 loss.backward()
@@ -53,7 +60,7 @@ class Trainer:
             train_loss /= step
             self.writer.add_scalar("MLoss/train", train_loss, epoch)
 
-            val_loss = self.eval_loss(model, self.val_dl).item()
+            val_loss = self.eval_loss(model, self.val_dl, device).item()
             self.writer.add_scalar("MLoss/validation", val_loss, epoch)
 
             print("MLoss/train", train_loss)

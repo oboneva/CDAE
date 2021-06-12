@@ -33,7 +33,7 @@ def main():
     writer = SummaryWriter()
 
     trainer = Trainer(train_dl, validation_dl, trainer_config, writer)
-    trainer.train(model)
+    trainer.train(model, device)
 
     # 4. Evaluate the Model.
     best_model = CDAE(
