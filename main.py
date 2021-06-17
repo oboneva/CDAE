@@ -42,8 +42,8 @@ def main():
         model_config, users_count=size[0], items_count=size[1], device=device)
     best_model.load_state_dict(torch.load("state_dict_model.pt"))
 
-    result = Evaluator().eval(model=best_model, dl=test_dl,
-                              verbose=True, config=evaluator_config, writer=writer)
+    result = Evaluator().eval(model=best_model, dl=test_dl, verbose=True,
+                              config=evaluator_config, writer=writer, device=device)
     print(result)
 
     writer.close()

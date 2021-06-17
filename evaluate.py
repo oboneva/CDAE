@@ -47,10 +47,14 @@ class Evaluator:
         return batch_precisions / min(k, len(adopted))
 
     @torch.no_grad()
-    def map_at_k(self, model: Module, test_dataloader: DataLoader, k: int):
+    def map_at_k(self, model: Module, test_dataloader: DataLoader, k: int, device):
         avg_precision = 0
         users = 0
         for i, (ratings, indicies) in enumerate(test_dataloader):
+
+            ratings = ratings.to(device)
+            indices = indices.to(device)
+
             output = model(ratings, indicies)
 
             batch_precisions = self._batch_avg_precision_at_k(
@@ -60,11 +64,12 @@ class Evaluator:
 
         return avg_precision / users
 
-    def eval(self, model: Module, dl: DataLoader, config: evaluator_config, verbose: bool, writer):
+    def eval(self, model: Module, dl: DataLoader, config: evaluator_config, verbose: bool, writer, device):
         results = []
 
         for k in config.top_k_list:
-            result = self.map_at_k(model, test_dataloader=dl, k=k)
+            result = self.map_at_k(
+                model, test_dataloader=dl, k=k, device=device)
             results.append(result)
 
             writer.add_scalar("Test/MAP@{}".format(k), result)
