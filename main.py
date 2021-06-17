@@ -1,3 +1,5 @@
+import sys
+from commandline import parse_args
 from evaluate import Evaluator
 from train import Trainer
 from cdae import CDAE
@@ -49,4 +51,5 @@ def main():
 
 
 if __name__ == "__main__":
+    parse_args(sys.argv[1:])
     main()
