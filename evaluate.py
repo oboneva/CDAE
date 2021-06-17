@@ -23,9 +23,9 @@ class Evaluator:
 
         return asd / len(adopted)
 
-    def _batch_avg_precision_at_k(self, batch_rec_list, batch_target_list, k):
+    def _batch_avg_precision_at_k(self, batch_rec_list, batch_target_list, k, device):
         batch_len = len(batch_rec_list)
-        batch_precisions = torch.zeros(batch_len, 1)
+        batch_precisions = torch.zeros(batch_len, 1).to(device)
 
         adopted = torch.sum(batch_target_list, 1)
 
@@ -58,7 +58,7 @@ class Evaluator:
             output = model(ratings, indicies)
 
             batch_precisions = self._batch_avg_precision_at_k(
-                output, ratings, k=k)
+                output, ratings, k=k, device=device)
             avg_precision += torch.sum(batch_precisions)
             users += len(ratings)
 
