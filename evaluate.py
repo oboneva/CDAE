@@ -53,7 +53,7 @@ class Evaluator:
         for i, (ratings, indicies) in enumerate(test_dataloader):
 
             ratings = ratings.to(device)
-            indices = indices.to(device)
+            indicies = indicies.to(device)
 
             output = model(ratings, indicies)
 
