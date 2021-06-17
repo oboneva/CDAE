@@ -8,17 +8,19 @@ def parse_args(argv):
         opts, args = getopt.getopt(
             argv, "c:t:e:p:", ["cratio=", "trainbs=", "epochs=", "patience="])
     except getopt.GetoptError:
-        print('main.py -c <corruption_ratio> -t <train_batch_size>')
+        print(
+            'main.py -c <corruption_ratio> -t <train_batch_size> -e <epochs> -p <patience>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('main.py -c <corruption_ratio> -t <train_batch_size>')
+            print(
+                'main.py -c <corruption_ratio> -t <train_batch_size> -e <epochs> -p <patience>')
             sys.exit()
         elif opt in ("-c", "--cratio"):
             model_config.corruption_ratio = float(arg)
         elif opt in ("-t", "--trainbs"):
             data_config.train_batch_size = int(arg)
         elif opt in ("-e", "--epochs"):
-            trainer_config.epochs = int(opt)
+            trainer_config.epochs = int(arg)
         elif opt in ("-p", "--patience"):
-            trainer_config.patience = int(opt)
+            trainer_config.patience = int(arg)
