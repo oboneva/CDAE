@@ -8,10 +8,7 @@ from dataset import MovieLens10MDataset
 import torch
 from configs import data_config, model_config, trainer_config, evaluator_config
 from torch.utils.tensorboard import SummaryWriter
-
-
-def comment():
-    return "_CR_{}_BATCH_{}".format(model_config.corruption_ratio, data_config.train_batch_size)
+from utils import model_metadata
 
 
 def main():
@@ -36,7 +33,7 @@ def main():
         model_config, users_count=size[0], items_count=size[1], device=device)
 
     # 3. Train the Model.
-    writer = SummaryWriter(comment=comment())
+    writer = SummaryWriter(comment=model_metadata())
 
     trainer = Trainer(train_dl, validation_dl, trainer_config, writer)
     trainer.train(model, device)
@@ -44,7 +41,8 @@ def main():
     # 4. Evaluate the Model.
     best_model = CDAE(
         model_config, users_count=size[0], items_count=size[1], device=device)
-    best_model.load_state_dict(torch.load("state_dict_model.pt"))
+    best_model.load_state_dict(torch.load(
+        "state_dict_model{}.pt".format(model_metadata())))
 
     result = Evaluator().eval(model=best_model, dl=test_dl, verbose=True,
                               config=evaluator_config, writer=writer, writer_section="Test", device=device)
