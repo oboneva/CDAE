@@ -1,7 +1,8 @@
+from evaluate import Evaluator
 import torch
 from torch.utils.data import DataLoader
 from torch.nn import Module
-from configs import trainer_config
+from configs import evaluator_config, trainer_config
 
 
 class Trainer:
@@ -67,6 +68,10 @@ class Trainer:
             print("MLoss/validation", val_loss)
 
             self.writer.flush()
+
+            Evaluator().eval(model=model, dl=self.val_dl, verbose=False,
+                             config=evaluator_config, writer=self.writer,
+                             writer_section="Validation", device=device)
 
             if val_loss < self.min_val_loss:
                 self.min_val_loss = val_loss

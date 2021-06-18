@@ -64,7 +64,7 @@ class Evaluator:
 
         return avg_precision / users
 
-    def eval(self, model: Module, dl: DataLoader, config: evaluator_config, verbose: bool, writer, device):
+    def eval(self, model: Module, dl: DataLoader, config: evaluator_config, verbose: bool, writer, writer_section: str, device):
         results = []
 
         for k in config.top_k_list:
@@ -72,7 +72,7 @@ class Evaluator:
                 model, test_dataloader=dl, k=k, device=device)
             results.append(result)
 
-            writer.add_scalar("Test/MAP@{}".format(k), result)
+            writer.add_scalar("{}/MAP@{}".format(writer_section, k), result)
             writer.flush()
 
             if verbose:

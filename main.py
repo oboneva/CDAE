@@ -10,6 +10,10 @@ from configs import data_config, model_config, trainer_config, evaluator_config
 from torch.utils.tensorboard import SummaryWriter
 
 
+def comment():
+    return "_CR_{}_BATCH_{}".format(model_config.corruption_ratio, data_config.train_batch_size)
+
+
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print("Using {} device".format(device))
@@ -32,7 +36,7 @@ def main():
         model_config, users_count=size[0], items_count=size[1], device=device)
 
     # 3. Train the Model.
-    writer = SummaryWriter()
+    writer = SummaryWriter(comment=comment())
 
     trainer = Trainer(train_dl, validation_dl, trainer_config, writer)
     trainer.train(model, device)
@@ -43,7 +47,7 @@ def main():
     best_model.load_state_dict(torch.load("state_dict_model.pt"))
 
     result = Evaluator().eval(model=best_model, dl=test_dl, verbose=True,
-                              config=evaluator_config, writer=writer, device=device)
+                              config=evaluator_config, writer=writer, writer_section="Test", device=device)
     print(result)
 
     writer.close()
