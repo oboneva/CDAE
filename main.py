@@ -16,9 +16,12 @@ def main():
     print("Using {} device".format(device))
 
     # 1. Prepare the Data.
-    train = MovieLens10MDataset("./Data/tensor_train_60.pt")
-    test = MovieLens10MDataset("./Data/tensor_test.pt")
-    validate = MovieLens10MDataset("./Data/tensor_validate.pt")
+    train = MovieLens10MDataset(
+        "{}/tensor_train_60.pt".format(data_config.data_dir))
+    test = MovieLens10MDataset(
+        "{}/tensor_test.pt".format(data_config.data_dir))
+    validate = MovieLens10MDataset(
+        "{}/tensor_validate.pt".format(data_config.data_dir))
 
     train_dl = DataLoader(
         train, batch_size=data_config.train_batch_size, shuffle=True)
