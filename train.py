@@ -3,6 +3,7 @@ import torch
 from torch.utils.data import DataLoader
 from torch.nn import Module
 from configs import evaluator_config, trainer_config
+from utils import model_metadata
 
 
 class Trainer:
@@ -79,7 +80,8 @@ class Trainer:
 
                 print("New minimal validation loss", val_loss)
 
-                torch.save(model.state_dict(), "state_dict_model.pt")
+                torch.save(model.state_dict(),
+                           "state_dict_model{}.pt".format(model_metadata()))
             elif self.no_improvement_epochs == self.patience:
                 print("Early stoping on epoch {}".format(epoch))
 
