@@ -71,10 +71,6 @@ class Trainer:
 
             self.writer.flush()
 
-            Evaluator().eval(model=model, dl=self.val_dl, verbose=False,
-                             config=evaluator_config, writer=self.writer,
-                             writer_section="Validation", device=device)
-
             if val_loss < self.min_val_loss:
                 self.min_val_loss = val_loss
                 self.no_improvement_epochs = 0
