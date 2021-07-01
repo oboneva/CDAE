@@ -11,7 +11,7 @@ class Trainer:
         self.train_dl = train_dataloader
         self.val_dl = validation_dataloader
 
-        self.train_config = train_config
+        self.config = train_config
 
         self.min_val_loss = 1
         self.patience = train_config.patience
@@ -38,10 +38,11 @@ class Trainer:
         return loss
 
     def train(self, model: Module, device):
-        loss_func = self.train_config.loss()
-        optimizer = self.train_config.optimizer(model.parameters())
+        loss_func = self.config.loss()
+        optimizer = self.config.optimizer(
+            model.parameters(), lr=self.config.learning_rate)
 
-        for epoch in range(self.train_config.epochs):
+        for epoch in range(self.config.epochs):
             print("--------------- Epoch {} --------------- ".format(epoch))
 
             train_loss = 0

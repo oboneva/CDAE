@@ -22,6 +22,7 @@ class trainer_config:
     optimizer = Adam
     loss = BCELoss
     patience = 15
+    learning_rate = 1e-3
 
 
 class evaluator_config:
