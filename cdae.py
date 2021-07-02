@@ -1,5 +1,4 @@
 import torch
-from torch.tensor import Tensor
 import configs
 from torch import nn
 import torch.nn.functional as func
@@ -27,7 +26,7 @@ class CDAE(nn.Module):
 
         self.to(self.device)
 
-    def forward(self, ratings: Tensor, indices):
+    def forward(self, ratings, indices):
         user_degree = torch.norm(ratings, 2, 1).view(-1, 1)
         item_degree = torch.norm(ratings, 2, 0).view(1, -1)
         normalize = torch.sqrt(user_degree @ item_degree)
